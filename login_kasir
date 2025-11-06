@@ -1,0 +1,133 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+
+# ====================== DATA LOGIN ======================
+data_login = [
+    {"username": "admin", "password": "123"},
+    {"username": "user", "password": "abc"},
+    {"username": "guest", "password": "xyz"}
+]
+
+# ====================== FUNGSI LOGIN ======================
+def login():
+    nama = entry_nama.get()
+    sandi = entry_sandi.get()
+    
+    ditemukan = False  
+    for akun in data_login:
+        if akun["username"] == nama and akun["password"] == sandi:
+            ditemukan = True
+            break
+
+    if ditemukan:
+        messagebox.showinfo("Login", "Login Berhasil!")
+        buka_kasir()  # buka halaman kasir
+    else:
+        messagebox.showerror("Login", "Username atau Password Salah!")
+
+# ====================== HALAMAN KASIR ======================
+def buka_kasir():
+    # Hapus semua widget di layar login
+    for widget in screen.winfo_children():
+        widget.destroy()
+
+    # Judul
+    label_judul = tk.Label(screen, text="Sistem Kasir", fg="#5C6BF7", bg="#80A1BA", font=("Arial Black", 20, "bold"))
+    label_judul.pack(pady=10)
+
+    subtitle = tk.Label(screen, text="Masukkan data barang di bawah ini", bg="#80A1BA", fg="#A3485A", font=("Arial", 10, "bold"))
+    subtitle.pack(pady=(0, 15))
+
+    # Frame input
+    frame_input = tk.Frame(screen, bg="#80A1BA")
+    frame_input.pack(pady=10)
+
+    tk.Label(frame_input, text="Nama Barang", bg="#80A1BA", fg="#A3485A").grid(row=0, column=0, padx=5, pady=5)
+    entry_barang = tk.Entry(frame_input, font=("Arial", 11), width=20, bd=0, highlightthickness=1, highlightcolor="#5C6BF7", relief="solid")
+    entry_barang.grid(row=0, column=1, padx=5, pady=5)
+
+    tk.Label(frame_input, text="Harga Satuan", bg="#80A1BA", fg="#A3485A").grid(row=1, column=0, padx=5, pady=5)
+    entry_harga = tk.Entry(frame_input, font=("Arial", 11), width=20, bd=0, highlightthickness=1, highlightcolor="#5C6BF7", relief="solid")
+    entry_harga.grid(row=1, column=1, padx=5, pady=5)
+
+    tk.Label(frame_input, text="Jumlah", bg="#80A1BA", fg="#A3485A").grid(row=2, column=0, padx=5, pady=5)
+    entry_jumlah = tk.Entry(frame_input, font=("Arial", 11), width=20, bd=0, highlightthickness=1, highlightcolor="#5C6BF7", relief="solid")
+    entry_jumlah.grid(row=2, column=1, padx=5, pady=5)
+
+    # Data barang disimpan di list
+    keranjang = []
+    total_harga = tk.IntVar(value=0)
+
+    # Fungsi tambah barang
+    def tambah_barang():
+        nama_barang = entry_barang.get()
+        try:
+            harga = int(entry_harga.get())
+            jumlah = int(entry_jumlah.get())
+        except ValueError:
+            messagebox.showerror("Error", "Harga dan jumlah harus berupa angka!")
+            return
+
+        total = harga * jumlah
+        keranjang.append((nama_barang, harga, jumlah, total))
+        tabel.insert("", "end", values=(nama_barang, harga, jumlah, total))
+        total_harga.set(total_harga.get() + total)
+
+        # Kosongkan input
+        entry_barang.delete(0, tk.END)
+        entry_harga.delete(0, tk.END)
+        entry_jumlah.delete(0, tk.END)
+
+    # Fungsi selesai
+    def selesai_belanja():
+        messagebox.showinfo("Total Belanja", f"Total harga yang harus dibayar: Rp {total_harga.get():,}")
+
+    # Tombol tambah
+    tombol_tambah = tk.Button(screen, text="Tambah ke Keranjang", fg="white", bg="#9B5DE0", command=tambah_barang, width=20)
+    tombol_tambah.pack(pady=5)
+
+    # Tabel daftar barang
+    kolom = ("Nama Barang", "Harga", "Jumlah", "Total")
+    tabel = ttk.Treeview(screen, columns=kolom, show="headings", height=6)
+    for kol in kolom:
+        tabel.heading(kol, text=kol)
+        tabel.column(kol, width=100, anchor="center")
+    tabel.pack(pady=10)
+
+    # Label total
+    label_total = tk.Label(screen, textvariable=total_harga, bg="#80A1BA", fg="black", font=("Arial", 12, "bold"))
+    label_total.pack()
+
+    # Tombol selesai
+    tombol_selesai = tk.Button(screen, text="Selesai & Hitung Total", fg="white", bg="#F15BB5", command=selesai_belanja, width=20)
+    tombol_selesai.pack(pady=10)
+
+    # Ubah warna background
+    screen.config(bg="#80A1BA")
+
+# ====================== HALAMAN LOGIN ======================
+screen = tk.Tk()
+screen.title("Form Login")
+screen.geometry("450x400")
+screen.resizable(False, False)
+screen.config(bg="#80A1BA")
+
+label_judul = tk.Label(screen, text="Login Here", fg="#5C6BF7", bg="#80A1BA", font=("Arial Black", 20, "bold"))
+label_judul.pack(pady=10)
+subtitle = tk.Label(screen, text="Members Login Area", bg="#80A1BA", fg="#A3485A", font=("Arial", 10, "bold"))
+subtitle.pack(pady=(0, 15))
+
+label_nama = tk.Label(screen, text="Username", bg="#80A1BA", fg="#A3485A")
+label_nama.pack()
+entry_nama = tk.Entry(screen, font=("Arial", 11), width=23, bd=0, highlightthickness=1, highlightcolor="#5C6BF7", relief="solid")
+entry_nama.pack()
+
+label_sandi = tk.Label(screen, text="Password", bg="#80A1BA", fg="#A3485A")
+label_sandi.pack()
+entry_sandi = tk.Entry(screen, font=("Arial", 11), width=23, bd=0, highlightthickness=1, highlightcolor="#5C6BF7", relief="solid", show="*")
+entry_sandi.pack(pady=5)
+
+tombol_submit = tk.Button(screen, text="Login", fg="white", bg="#9B5DE0", command=login, width=20)
+tombol_submit.pack(pady=20)
+
+screen.mainloop()
